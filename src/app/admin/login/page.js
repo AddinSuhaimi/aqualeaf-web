@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 export default function LoginPage() {
-  const [form, setForm] = useState({ identifier: '', password: '' })
+  const [form, setForm] = useState({ username: '', email: '', password: ''})
   const [error, setError] = useState('')
   const router = useRouter()
 
@@ -29,17 +29,18 @@ export default function LoginPage() {
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
-    const res = await fetch('/api/login', {
+    const res = await fetch('/api/login-admin', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        identifier: form.identifier,
+        username: form.username,
+        email: form.email,
         password: form.password,
       }),
     })
     if (res.ok) {
       // replace so login isn't retained in history
-      router.replace('/dashboard')
+      router.replace('/admin/dashboard')
     } else {
       const data = await res.json()
       setError(data.message || 'Login failed')
@@ -49,18 +50,31 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="w-full max-w-md bg-white rounded-lg shadow-md p-8">
-        <h1 className="text-2xl font-bold text-charcoal text-center mb-1">Login to Farm Account</h1>
+        <h1 className="text-2xl font-bold text-charcoal text-center mb-1">Administrator Login</h1>
         <p className="text-charcoal text-center mb-6">AquaLeaf</p>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="identifier" className="block text-charcoal">
-              Farm Name / Manager Email
+            <label htmlFor="username" className="block text-charcoal">
+              Username
             </label>
             <input
-              id="identifier"
+              id="username"
               type="text"
-              value={form.identifier}
-              onChange={e => setForm({ ...form, identifier: e.target.value })}
+              value={form.username}
+              onChange={e => setForm({ ...form, username: e.target.value })}
+              required
+              className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-charcoal focus:outline-none focus:ring focus:border-blue-300"
+            />
+          </div>
+          <div>
+            <label htmlFor="email" className="block text-charcoal">
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              value={form.email}
+              onChange={e => setForm({ ...form, email: e.target.value })}
               required
               className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-charcoal focus:outline-none focus:ring focus:border-blue-300"
             />
@@ -86,18 +100,6 @@ export default function LoginPage() {
             Login
           </button>
         </form>
-        
-        {/* Forgot Password Link */}
-        <div className="mt-4 text-center">
-          <Link
-            href="/forgot-password"
-            className="text-sm text-blue-600 hover:underline"
-          >
-          Forgot Password?
-          </Link>
-        </div>
-
-
         {/* Home Button */}
         <Link
           href="/"

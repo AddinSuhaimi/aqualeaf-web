@@ -7,24 +7,24 @@ export default async function handler(req, res) {
   if (req.method !== 'POST')
     return res.status(405).json({ message: 'Method Not Allowed' })
 
-  const { identifier, password } = req.body
-  if (!identifier || !password)
+  const { username, email, password } = req.body
+  if (!username || !email || !password)
     return res.status(400).json({ message: 'Missing fields' })
 
   const [rows] = await pool.query(
-    'SELECT id, farm_name, password FROM users WHERE (email = ? OR farm_name = ?) AND is_verified = 1',
-    [identifier, identifier]
+    'SELECT admin_id, username, email, password FROM administrator WHERE email = ?',
+    [email]
   )
   if (!rows.length)
-    return res.status(401).json({ message: 'User does not exist or has not been verified' })
+    return res.status(401).json({ message: 'Invalid credentials' })
 
-  const user = rows[0]
-  const valid = await bcrypt.compare(password, user.password)
+  const admin = rows[0]
+  const valid = await bcrypt.compare(password, admin.password)
   if (!valid)
     return res.status(401).json({ message: 'Invalid credentials' })
 
   const token = jwt.sign(
-    { id: user.id, farm_name: user.farm_name },
+    { id: admin.id, username: admin.username },
     process.env.JWT_SECRET,
     { expiresIn: '1h' }
   )

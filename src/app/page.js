@@ -151,6 +151,26 @@ with confidence.
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-800 text-white py-4">
+        <div className="container mx-auto px-6 flex items-center justify-center gap-3">
+          {/* Placeholder admin icon */}
+          <Image
+            src="/aqualeaf-logo.png"
+            alt="Admin Icon"
+            width={24}
+            height={24}
+          />
+          <Link
+            href="/admin/login"
+            className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-md text-white font-medium flex items-center"
+          >
+            Login as Administrator
+          </Link>
+        </div>
+      </footer>
+
     </div>
   )
 }

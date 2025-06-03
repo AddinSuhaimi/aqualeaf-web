@@ -35,12 +35,13 @@ async function sendVerificationEmail(email, token) {
   const verifyUrl = `${baseUrl}/verify?token=${token}`
 
   await transporter.sendMail({
-    from: `"AquaLeaf" <noreply@aqualeaf.com>`,
+    from: `"AquaLeaf Support" <aqualeaf@gmail.com>`,
     to: email,
-    subject: 'Please verify your email',
-    text: `Welcome to AquaLeaf!\nVerify your email here: ${verifyUrl}`,
-    html: `<p>…click <a href="${verifyUrl}">here</a>.</p>`,
-    })
+    subject: 'Verify your AquaLeaf account',
+    text: `Welcome to AquaLeaf!\n\nPlease verify by visiting: ${verifyUrl}`,
+    html: `<p>Welcome to <strong>AquaLeaf</strong>!</p>
+          <p><a href="${verifyUrl}">Click here to verify</a> your email.</p>`,
+  })
 }
 
 export default async function registerHandler(req, res) {

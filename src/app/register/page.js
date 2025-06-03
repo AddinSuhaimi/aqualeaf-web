@@ -7,31 +7,43 @@ export default function RegisterPage() {
   const [form, setForm] = useState({ farmName: '', location: '', email: '', password: '' })
   const [error, setError] = useState('')
   const [showPopup, setShowPopup] = useState(false)
+  const [loading, setLoading] = useState(false)
   const router = useRouter()
 
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
-    const res = await fetch('/api/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        farmName: form.farmName,
-        location: form.location,
-        email: form.email,
-        password: form.password,
-      }),
-    })
-    const data = await res.json()
-    if (res.ok) {
-      setShowPopup(true)
-    } else {
-      setError(data.message || 'Registration failed')
+    setLoading(true)
+
+    try {
+      const res = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          farmName: form.farmName,
+          location: form.location,
+          email: form.email,
+          password: form.password,
+        }),
+      })
+      const data = await res.json()
+      setLoading(false)
+
+      if (res.ok) {
+        setShowPopup(true)
+      } else {
+        setError(data.message || 'Registration failed')
+      }
+    } catch (err) {
+      console.error(err)
+      setLoading(false)
+      setError('An unexpected error occurred. Please try again.')
     }
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 relative">
+      {/* Registration Form */}
       <div className="w-full max-w-md bg-white rounded-lg shadow-md p-8">
         <h1 className="text-2xl font-bold text-charcoal text-center mb-1">Register Farm Account</h1>
         <p className="text-charcoal text-center mb-6">AquaLeaf</p>
@@ -44,7 +56,8 @@ export default function RegisterPage() {
               value={form.farmName}
               onChange={e => setForm({ ...form, farmName: e.target.value })}
               required
-              className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-charcoal focus:outline-none focus:ring focus:border-blue-300"
+              disabled={loading}
+              className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-charcoal focus:outline-none focus:ring focus:border-blue-300 disabled:opacity-50"
             />
           </div>
           <div>
@@ -55,7 +68,8 @@ export default function RegisterPage() {
               value={form.location}
               onChange={e => setForm({ ...form, location: e.target.value })}
               required
-              className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-charcoal focus:outline-none focus:ring focus:border-blue-300"
+              disabled={loading}
+              className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-charcoal focus:outline-none focus:ring focus:border-blue-300 disabled:opacity-50"
             />
           </div>
           <div>
@@ -66,7 +80,8 @@ export default function RegisterPage() {
               value={form.email}
               onChange={e => setForm({ ...form, email: e.target.value })}
               required
-              className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-charcoal focus:outline-none focus:ring focus:border-blue-300"
+              disabled={loading}
+              className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-charcoal focus:outline-none focus:ring focus:border-blue-300 disabled:opacity-50"
             />
           </div>
           <div>
@@ -77,25 +92,45 @@ export default function RegisterPage() {
               value={form.password}
               onChange={e => setForm({ ...form, password: e.target.value })}
               required
-              className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-charcoal focus:outline-none focus:ring focus:border-blue-300"
+              disabled={loading}
+              className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-charcoal focus:outline-none focus:ring focus:border-blue-300 disabled:opacity-50"
             />
           </div>
           {error && <p className="text-charcoal text-sm">{error}</p>}
           <button
             type="submit"
-            className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-md transition"
+            disabled={loading}
+            className={`w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-md transition disabled:opacity-50`}
           >
-            Register
+            {loading ? 'Registering…' : 'Register'}
           </button>
         </form>
       </div>
 
+      {/* Loading Modal */}
+      {loading && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ backgroundColor: 'rgba(0, 0, 0, 0.25)' }}
+        >
+          <div className="flex flex-col items-center bg-white rounded-lg p-6 shadow-lg">
+            <div className="animate-spin h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full"></div>
+            <p className="mt-4 text-gray-700">Registering your farm...</p>
+          </div>
+        </div>
+      )}
+
       {/* Popup Overlay */}
       {showPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ backgroundColor: 'rgba(0, 0, 0, 0.25)' }}
+        >
           <div className="bg-white rounded-lg shadow-lg max-w-sm w-full p-6 text-center">
             <h2 className="text-xl font-semibold text-charcoal mb-4">Registration Successful</h2>
-            <p className="text-charcoal mb-6">Check your email for a verification link before logging in.</p>
+            <p className="text-charcoal mb-6">
+              Check your email for a verification link before logging in.
+            </p>
             <div className="flex justify-center gap-4">
               <button
                 onClick={() => setShowPopup(false)}
