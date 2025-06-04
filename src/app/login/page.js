@@ -6,6 +6,7 @@ import Link from 'next/link'
 
 export default function LoginPage() {
   const [form, setForm] = useState({ identifier: '', password: '' })
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
 
@@ -71,17 +72,32 @@ export default function LoginPage() {
             </label>
             <input
               id="password"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               value={form.password}
               onChange={e => setForm({ ...form, password: e.target.value })}
               required
               className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-charcoal focus:outline-none focus:ring focus:border-blue-300"
             />
           </div>
-          {error && <p className="text-charcoal text-sm">{error}</p>}
+
+          {/* Checkbox to toggle password visibility */}
+          <div className="flex items-center">
+            <input
+              id="showPassword"
+              type="checkbox"
+              checked={showPassword}
+              onChange={e => setShowPassword(e.target.checked)}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
+            <label htmlFor="showPassword" className="ml-2 block text-gray-700">
+              Show Password
+            </label>
+          </div>
+
+          {error && <p className="text-red-600 text-sm">{error}</p>}
           <button
             type="submit"
-            className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-md transition"
+            className="cursor-pointer w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-md transition"
           >
             Login
           </button>
@@ -96,7 +112,6 @@ export default function LoginPage() {
           Forgot Password?
           </Link>
         </div>
-
 
         {/* Home Button */}
         <Link

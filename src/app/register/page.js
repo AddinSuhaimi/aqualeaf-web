@@ -2,10 +2,12 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 export default function RegisterPage() {
   const [form, setForm] = useState({ farmName: '', location: '', email: '', password: '' })
   const [error, setError] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [showPopup, setShowPopup] = useState(false)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
@@ -88,7 +90,7 @@ export default function RegisterPage() {
             <label htmlFor="password" className="block text-charcoal">Password</label>
             <input
               id="password"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               value={form.password}
               onChange={e => setForm({ ...form, password: e.target.value })}
               required
@@ -96,15 +98,38 @@ export default function RegisterPage() {
               className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-charcoal focus:outline-none focus:ring focus:border-blue-300 disabled:opacity-50"
             />
           </div>
-          {error && <p className="text-charcoal text-sm">{error}</p>}
+
+          {/* Checkbox to toggle password visibility */}
+          <div className="flex items-center">
+            <input
+              id="showPassword"
+              type="checkbox"
+              checked={showPassword}
+              onChange={e => setShowPassword(e.target.checked)}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
+            <label htmlFor="showPassword" className="ml-2 block text-gray-700">
+              Show Password
+            </label>
+          </div>
+
+          {error && <p className="text-red-600 text-sm">{error}</p>}
           <button
             type="submit"
             disabled={loading}
-            className={`w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-md transition disabled:opacity-50`}
+            className={`cursor-pointer w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-md transition disabled:opacity-50`}
           >
             {loading ? 'Registering…' : 'Register'}
           </button>
         </form>
+
+        {/* Home Button */}
+        <Link
+          href="/"
+          className="w-full mt-4 border border-gray-300 hover:bg-gray-100 text-charcoal font-medium py-2 rounded-md block text-center"
+        >
+          Home
+        </Link>
       </div>
 
       {/* Loading Modal */}
@@ -148,6 +173,7 @@ export default function RegisterPage() {
           </div>
         </div>
       )}
+
     </div>
   )
 }
