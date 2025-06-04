@@ -3,6 +3,14 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --color-ocean: #0077B6; 
+  --color-leaf: #52B788; 
+  --color-seafoam: #CAF0F8; 
+  --color-coral: #F9844A; 
+  --color-danger: #D00000; 
+  --color-charcoal: #212529; 
+  --color-softgray: #F1F1F1;
+  --color-secondaryText: #6C757D; 
 }
 
 @theme inline {
@@ -24,3 +32,12 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.text-ocean    { color: var(--color-ocean); }
+.text-leaf     { color: var(--color-leaf); }
+.text-seafoam  { color: var(--color-seafoam); }
+.text-coral    { color: var(--color-coral); }
+.text-danger   { color: var(--color-danger); }
+.text-charcoal { color: var(--color-charcoal); }
+.text-softgray { color: var(--color-softgray); }
+.text-secondaryText { color: var(--color-secondaryText); }
