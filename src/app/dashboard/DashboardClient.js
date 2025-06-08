@@ -27,7 +27,7 @@ export default function DashboardClient({ user }) {
 
   useEffect(() => {
     const fetchSpecies = async () => {
-      const res = await fetch('/api/seaweed-species')
+      const res = await fetch('/api/scan-report/seaweed-species')
       const data = await res.json()
       setSpeciesOptions(data)
     }
@@ -35,24 +35,30 @@ export default function DashboardClient({ user }) {
     fetchSpecies()
   }, [])
 
-  const exportPDF = async () => {
-    const res = await fetch('/api/scan-report/export', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(filters),
+  const generatePDF = async () => {
+    const response = await fetch('/api/scan-report/pdf-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          dateFrom: filters.dateFrom,
+          dateTo: filters.dateTo,
+          species: filters.species,
+          quality: filters.quality,
+        })
     })
 
-    if (!res.ok) {
-      alert('Failed to generate PDF.')
-      return
-    }
-
-    const blob = await res.blob()
+    const blob = await response.blob()
     const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'seaweed_report.pdf'
-    a.click()
+
+    const today = new Date()
+    const dateStr = today.toISOString().split('T')[0] // format: YYYY-MM-DD
+    const filename = `Seaweed_Report_${dateStr}.pdf`
+
+    const link = document.createElement('a')
+    link.href = url
+    link.download = filename
+    link.click()
+
     URL.revokeObjectURL(url)
   }
 
@@ -65,6 +71,30 @@ export default function DashboardClient({ user }) {
     const data = await res.json()
     setPreviewData(data)
   }
+
+  const generateCSV = async () => {
+    const res = await fetch('/api/scan-report/export-csv', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        dateFrom: filters.dateFrom,
+        dateTo: filters.dateTo,
+        species: filters.species,
+        quality: filters.quality
+      })
+    })
+
+    const blob = await res.blob()
+    const url = URL.createObjectURL(blob)
+
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'seaweed_quality.csv'
+    link.click()
+
+    URL.revokeObjectURL(url)
+}
+
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800">
@@ -167,13 +197,21 @@ export default function DashboardClient({ user }) {
               </button>
 
               {/* Generate button */}
+              <div className="flex gap-4 mt-2">
               <button
-                onClick={exportPDF}
+                onClick={generatePDF}
                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded w-full mt-2"
               >
                 Generate PDF Report
               </button>
 
+              <button
+                onClick={generateCSV}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded w-full mt-2"
+              >
+                Generate CSV File
+              </button>
+              </div>
             </div>
           </div>
 
