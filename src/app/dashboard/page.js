@@ -1,4 +1,3 @@
-// app/dashboard/page.js
 export const dynamic = 'force-dynamic'
 
 import { cookies } from 'next/headers'
@@ -7,7 +6,9 @@ import jwt from 'jsonwebtoken'
 import DashboardClient from './DashboardClient'
 
 export default async function DashboardPage() {
-  const token = cookies().get('token')?.value
+  const cookieStore = await cookies()
+  const token = cookieStore.get('token')?.value
+
   if (!token) redirect('/login')
 
   let user
@@ -17,6 +18,5 @@ export default async function DashboardPage() {
     redirect('/login')
   }
 
-  // render the client wrapper
   return <DashboardClient user={user} />
 }

@@ -7,14 +7,14 @@ export default async function verifyHandler(req, res) {
 
   // Verify token and fetch user
   const [rows] = await pool.query(
-    'SELECT id FROM users WHERE verification_token = ? AND is_verified = 0',
+    'SELECT farm_id FROM farm_account WHERE verification_token = ? AND is_verified = 0',
     [token]
   )
   if (!rows.length) return res.status(400).json({ success: false, message: 'Invalid or expired token' })
 
   // Update user as verified
   await pool.query(
-    'UPDATE users SET is_verified = 1, verification_token = NULL WHERE id = ?',
+    'UPDATE farm_account SET is_verified = 1, verification_token = NULL WHERE farm_id = ?',
     [rows[0].id]
   )
 

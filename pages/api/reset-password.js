@@ -14,7 +14,7 @@ export default async function handler(req, res) {
 
   // 1) Look up user by reset_token, ensure not expired
   const [rows] = await pool.query(
-    'SELECT id, reset_expires FROM users WHERE reset_token = ?',
+    'SELECT farm_id, reset_expires FROM farm_account WHERE reset_token = ?',
     [token]
   )
   if (rows.length === 0) {
@@ -32,7 +32,7 @@ export default async function handler(req, res) {
 
   // 3) Update the user: set new password, clear reset_token & reset_expires
   await pool.query(
-    `UPDATE users SET password = ?, reset_token = NULL, reset_expires = NULL WHERE id = ?`,
+    `UPDATE farm_account SET password = ?, reset_token = NULL, reset_expires = NULL WHERE farm_id = ?`,
     [hashedPassword, user.id]
   )
 

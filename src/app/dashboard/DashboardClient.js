@@ -2,9 +2,13 @@
 
 import Image from 'next/image'
 import { useState } from 'react'
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
 export default function DashboardClient({ user }) {
+
+  const [previewData, setPreviewData] = useState([])
+
   const [filters, setFilters] = useState({
     dateFrom: '',
     dateTo: '',
@@ -17,6 +21,49 @@ export default function DashboardClient({ user }) {
   async function handleLogout() {
     await fetch('/api/logout', { method: 'POST' })
     router.replace('/')
+  }
+
+  const [speciesOptions, setSpeciesOptions] = useState([])
+
+  useEffect(() => {
+    const fetchSpecies = async () => {
+      const res = await fetch('/api/seaweed-species')
+      const data = await res.json()
+      setSpeciesOptions(data)
+    }
+
+    fetchSpecies()
+  }, [])
+
+  const exportPDF = async () => {
+    const res = await fetch('/api/scan-report/export', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(filters),
+    })
+
+    if (!res.ok) {
+      alert('Failed to generate PDF.')
+      return
+    }
+
+    const blob = await res.blob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'seaweed_report.pdf'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const fetchPreviewData = async () => {
+    const res = await fetch('/api/scan-report/preview', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(filters),
+    })
+    const data = await res.json()
+    setPreviewData(data)
   }
 
   return (
@@ -85,21 +132,46 @@ export default function DashboardClient({ user }) {
 
               {/* Other dropdowns */}
               <label htmlFor="speciesDropdown">Filter by Seaweed Species</label>
-                <select id="speciesDropdown" className="w-full border rounded px-3 py-2">
-                  <option value="None">Do not filter</option>
-                  <option value="Gracilaria">Gracilaria</option>
-                  <option value="Eucheuma">Eucheuma</option>
+                <select
+                  id="speciesDropdown"
+                  className="w-full border rounded px-3 py-2"
+                  value={filters.species}
+                  onChange={(e) =>
+                    setFilters((prev) => ({ ...prev, species: e.target.value }))
+                  }
+                >
+                  <option value="">Do not filter</option>
+                  {speciesOptions.map((s) => (
+                    <option key={s.species_id} value={s.species_id}>
+                      {s.species_name}
+                    </option>
+                  ))}
                 </select>
+
               <label htmlFor="qualityDropdown">Filter by Quality Status</label>
-                <select id="qualityDropdown" className="w-full border rounded px-3 py-2">
-                  <option value="None">Do not filter</option>
+                <select
+                  id="qualityDropdown"
+                  className="w-full border rounded px-3 py-2"
+                  value={filters.quality}
+                  onChange={(e) => setFilters({ ...filters, quality: e.target.value })}
+                >
+                  <option value="">Do not filter</option>
                   <option value="Good">Good</option>
                   <option value="Bad">Bad</option>
                 </select>
 
+              <button
+                onClick={fetchPreviewData}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded w-full">
+                Preview Data
+              </button>
+
               {/* Generate button */}
-              <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded w-full">
-                Generate
+              <button
+                onClick={exportPDF}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded w-full mt-2"
+              >
+                Generate PDF Report
               </button>
 
             </div>
@@ -119,58 +191,34 @@ export default function DashboardClient({ user }) {
                 </tr>
               </thead>
               <tbody>
-                {[
-                  {
-                    species: 'Gracilaria',
-                    phylum: 'Red Seaweed',
-                    quality: 'Good',
-                    impurity: '2',
-                    discoloration: '11',
-                    timestamp: '2025-06-03 14:01:54',
-                  },
-                  {
-                    species: 'Gracilaria',
-                    phylum: 'Red Seaweed',
-                    quality: 'Good',
-                    impurity: '5',
-                    discoloration: '1',
-                    timestamp: '2025-06-03 14:02:31',
-                  },
-                  {
-                    species: 'Gracilaria',
-                    phylum: 'Red Seaweed',
-                    quality: 'Bad',
-                    impurity: '14',
-                    discoloration: '21',
-                    timestamp: '2025-06-03 14:03:07',
-                  },
-                  {
-                    species: 'Gracilaria',
-                    phylum: 'Red Seaweed',
-                    quality: 'Good',
-                    impurity: '3',
-                    discoloration: '13',
-                    timestamp: '2025-06-03 14:03:50',
-                  },
-                ].map((item, i) => (
-                  <tr key={i} className="border-t">
-                    <td className="py-2">
-                      <div className="font-medium">{item.species}</div>
-                      <div className="text-gray-500 text-xs">{item.phylum}</div>
+                {previewData.length === 0 ? (
+                  <tr>
+                    <td colSpan="5" className="text-center py-4 text-gray-400">
+                      No data previewed yet.
                     </td>
-                    <td className="py-2">
-                      <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                        item.quality === 'Good' ? 'bg-green-100 text-green-600' :
-                        'bg-red-200 text-red-600'
-                      }`}>
-                        {item.quality}
-                      </span>
-                    </td>
-                    <td className="py-2">{item.impurity}%</td>
-                    <td className="py-2">{item.discoloration}%</td>
-                    <td className="py-2">{item.timestamp}</td>
                   </tr>
-                ))}
+                ) : (
+                  previewData.map((item, i) => (
+                    <tr key={i} className="border-t">
+                      <td className="py-2">
+                        <div className="font-medium">{item.species_name || item.species}</div>
+                        <div className="text-gray-500 text-xs">{item.phylum_name || '—'}</div>
+                      </td>
+                      <td className="py-2">
+                        <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                          item.quality_status === 'Good' ? 'bg-green-100 text-green-600' :
+                          item.quality_status === 'Bad' ? 'bg-red-200 text-red-600' :
+                          'bg-gray-200 text-gray-700'
+                        }`}>
+                          {item.quality_status || item.quality}
+                        </span>
+                      </td>
+                      <td className="py-2">{item.impurity_status || item.impurity}%</td>
+                      <td className="py-2">{item.discoloration_level || item.discoloration}%</td>
+                      <td className="py-2">{item.timestamp}</td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

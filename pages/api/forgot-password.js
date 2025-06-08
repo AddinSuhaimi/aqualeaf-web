@@ -32,7 +32,7 @@ export default async function handler(req, res) {
   }
 
   // 1) See if a user with this email exists
-  const [rows] = await pool.query('SELECT id FROM users WHERE email = ?', [email])
+  const [rows] = await pool.query('SELECT farm_id FROM farm_account WHERE email = ?', [email])
   if (rows.length === 0) {
     // Don’t reveal that the email is not in our system.
     return res.status(200).json({ message: 'If that email is registered, you’ll receive a reset link shortly.' })
@@ -46,7 +46,7 @@ export default async function handler(req, res) {
 
   // 3) Store reset_token and reset_expires in DB for that user
   await pool.query(
-    'UPDATE users SET reset_token = ?, reset_expires = ? WHERE id = ?',
+    'UPDATE farm_account SET reset_token = ?, reset_expires = ? WHERE farm_id = ?',
     [token, expires, userId]
   )
 

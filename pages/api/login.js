@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ message: 'Missing fields' })
 
   const [rows] = await pool.query(
-    'SELECT id, farm_name, password FROM users WHERE (email = ? OR farm_name = ?) AND is_verified = 1',
+    'SELECT farm_id, farm_name, password FROM farm_account WHERE (email = ? OR farm_name = ?) AND is_verified = 1',
     [identifier, identifier]
   )
   if (!rows.length)
@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     return res.status(401).json({ message: 'Invalid credentials' })
 
   const token = jwt.sign(
-    { id: user.id, farm_name: user.farm_name },
+    { farm_id: user.farm_id, farm_name: user.farm_name },
     process.env.JWT_SECRET,
     { expiresIn: '1h' }
   )

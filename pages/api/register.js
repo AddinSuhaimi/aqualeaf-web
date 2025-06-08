@@ -53,7 +53,7 @@ export default async function registerHandler(req, res) {
 
   // Check for existing user
   const [exists] = await pool.query(
-    'SELECT id FROM users WHERE email = ? OR farm_name = ?',
+    'SELECT farm_id FROM farm_account WHERE email = ? OR farm_name = ?',
     [email, farmName]
   )
   if (exists.length) {
@@ -66,7 +66,7 @@ export default async function registerHandler(req, res) {
 
   // Insert new user
   await pool.query(
-    'INSERT INTO users (farm_name, location, email, password, is_verified, verification_token) VALUES (?, ?, ?, ?, 0, ?)',
+    'INSERT INTO farm_account (farm_name, location, email, password, is_verified, verification_token) VALUES (?, ?, ?, ?, 0, ?)',
     [farmName, location, email, hash, token]
   )
 
