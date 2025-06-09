@@ -7,8 +7,10 @@ import jwt from 'jsonwebtoken'
 import DashboardClient from './DashboardClient'
 
 export default async function AdminDashboardPage() {
-  const token = cookies().get('token')?.value
-  if (!token) redirect('/admin/login')
+  const cookieStore = await cookies()
+  const token = cookieStore.get('token')?.value
+
+  if (!token) redirect('/login')
 
   let admin
   try {

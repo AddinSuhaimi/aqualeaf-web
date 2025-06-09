@@ -87,9 +87,13 @@ export default function DashboardClient({ user }) {
     const blob = await res.blob()
     const url = URL.createObjectURL(blob)
 
+    const today = new Date()
+    const dateStr = today.toISOString().split('T')[0] // format: YYYY-MM-DD
+    const filename = `Seaweed_Report_${dateStr}.csv`
+
     const link = document.createElement('a')
     link.href = url
-    link.download = 'seaweed_quality.csv'
+    link.download = filename
     link.click()
 
     URL.revokeObjectURL(url)
@@ -240,7 +244,7 @@ export default function DashboardClient({ user }) {
                     <tr key={i} className="border-t">
                       <td className="py-2">
                         <div className="font-medium">{item.species_name || item.species}</div>
-                        <div className="text-gray-500 text-xs">{item.phylum_name || '—'}</div>
+                        <div className="text-gray-500 text-xs">{item.phylum || '—'}</div>
                       </td>
                       <td className="py-2">
                         <span className={`px-2 py-1 rounded text-xs font-semibold ${

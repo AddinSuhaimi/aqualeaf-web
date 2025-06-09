@@ -14,7 +14,7 @@ export default async function handler(req, res) {
     const { dateFrom, dateTo, species, quality } = req.body
 
     let query = `
-      SELECT sr.*, ss.species_name, ss.phylum_name 
+      SELECT sr.*, ss.species_name, ss.phylum
       FROM scan_report sr
       JOIN seaweed_species ss ON sr.species_id = ss.species_id
       WHERE sr.farm_id = ?`
