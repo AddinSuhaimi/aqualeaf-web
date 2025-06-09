@@ -117,7 +117,7 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className={`cursor-pointer w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-md transition disabled:opacity-50`}
+            className={`cursor-pointer w-full mt-4 bg-leaf hover:bg-leaf text-white font-medium py-2 rounded-md transition disabled:opacity-50`}
           >
             {loading ? 'Registering…' : 'Register'}
           </button>

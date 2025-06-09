@@ -37,13 +37,13 @@ export default function HomePage() {
           <div className="flex items-center gap-4">
             <Link
               href="/register"
-              className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md"
+              className="px-4 py-2 bg-leaf hover:bg-leaf text-white rounded-md"
             >
               Register
             </Link>
             <Link
               href="/login"
-              className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md"
+              className="px-4 py-2 bg-ocean hover:bg-ocean text-white rounded-md"
             >
               Sign In
             </Link>
@@ -74,7 +74,7 @@ export default function HomePage() {
               </h2>
               <Link
                 href="/register"
-                className="inline-block px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-md"
+                className="inline-block px-6 py-3 bg-leaf hover:bg-leaf text-white rounded-md"
               >
                 Register Farm Account
               </Link>
@@ -85,7 +85,7 @@ export default function HomePage() {
               </h2>
               <Link
                 href="/login"
-                className="inline-block px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-md"
+                className="inline-block px-6 py-3 bg-ocean hover:bg-ocean text-white rounded-md"
               >
                 Sign In as Farm Manager
               </Link>
@@ -128,8 +128,8 @@ export default function HomePage() {
             </h3>
             <p className="text-gray-600">
               Using advanced computer vision models, it can detect
-discoloration, texture issues, and other defects so you can harvest
-with confidence.
+              discoloration, texture issues, and other defects so you can harvest
+              with confidence.
             </p>
           </div>
 

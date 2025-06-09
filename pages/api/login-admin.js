@@ -15,14 +15,21 @@ export default async function handler(req, res) {
     'SELECT admin_id, username, email, password FROM administrator WHERE email = ?',
     [email]
   )
-  if (!rows.length)
+  if (!rows.length) {
+    await pool.query(
+      'INSERT INTO login_attempt (timestamp, status) VALUES (NOW(), \'Invalid credentials\')',
+    )
     return res.status(401).json({ message: 'Invalid credentials' })
+  }
 
   const admin = rows[0]
   const valid = await bcrypt.compare(password, admin.password)
-  if (!valid)
+  if (!valid) {
+    await pool.query(
+      'INSERT INTO login_attempt (timestamp, status) VALUES (NOW(), \'Invalid credentials\')',
+    )
     return res.status(401).json({ message: 'Invalid credentials' })
-
+  }
   const token = jwt.sign(
     { id: admin.id, username: admin.username },
     process.env.JWT_SECRET,
@@ -32,5 +39,8 @@ export default async function handler(req, res) {
   res.setHeader('Set-Cookie', [
     `token=${token}; HttpOnly; Path=/; Max-Age=3600; SameSite=Lax`
   ])
+  await pool.query(
+    'INSERT INTO login_attempt (timestamp, status) VALUES (NOW(), \'Success\')',
+  )
   res.status(200).json({ message: 'Logged in' })
 }

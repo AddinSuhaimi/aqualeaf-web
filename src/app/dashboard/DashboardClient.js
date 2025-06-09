@@ -192,7 +192,7 @@ export default function DashboardClient({ user }) {
 
               <button
                 onClick={fetchPreviewData}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded w-full">
+                className="cursor-pointer bg-ocean text-white px-4 py-2 rounded w-full">
                 Preview Data
               </button>
 
@@ -200,14 +200,14 @@ export default function DashboardClient({ user }) {
               <div className="flex gap-4 mt-2">
               <button
                 onClick={generatePDF}
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded w-full mt-2"
+                className="cursor-pointer bg-leaf text-white px-4 py-2 rounded w-full mt-2"
               >
                 Generate PDF Report
               </button>
 
               <button
                 onClick={generateCSV}
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded w-full mt-2"
+                className="cursor-pointer bg-leaf text-white px-4 py-2 rounded w-full mt-2"
               >
                 Generate CSV File
               </button>
