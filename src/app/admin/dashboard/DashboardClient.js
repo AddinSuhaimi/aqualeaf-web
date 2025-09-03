@@ -139,6 +139,10 @@ export default function DashboardClient({ admin }) {
       payload.name = speciesName
       payload.phylum = phylum
 
+      const today = new Date()
+      const formattedDate = today.toISOString().split('T')[0]
+      payload.date_added = formattedDate
+
     } else if (speciesAction === 'edit') {
       if (!speciesId || !speciesName.trim()) {
         alert('Please select a species and enter a new name.')

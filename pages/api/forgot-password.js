@@ -38,7 +38,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ message: 'If that email is registered, you’ll receive a reset link shortly.' })
   }
 
-  const userId = rows[0].id
+  const userId = rows[0].farm_id
 
   // 2) Generate a reset token & expiration (1 hour from now)
   const token = crypto.randomBytes(32).toString('hex')

@@ -9,11 +9,11 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
-      const { action, id, name, phylum } = req.body
+      const { action, id, name, phylum, date_added } = req.body
 
       if (action === 'add') {
         if (!name) return res.status(400).json({ error: 'Missing species name' })
-        await pool.query(`INSERT INTO seaweed_species (species_name, phylum) VALUES (?, ?)`, [name, phylum])
+        await pool.query(`INSERT INTO seaweed_species (species_name, phylum, date_added) VALUES (?, ?, ?)`, [name, phylum, date_added])
         return res.status(200).json({ message: 'Species added' })
 
       } else if (action === 'edit') {

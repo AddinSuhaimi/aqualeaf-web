@@ -15,7 +15,7 @@ export default async function verifyHandler(req, res) {
   // Update user as verified
   await pool.query(
     'UPDATE farm_account SET is_verified = 1, verification_token = NULL WHERE farm_id = ?',
-    [rows[0].id]
+    [rows[0].farm_id]
   )
 
   // Return on successful verification

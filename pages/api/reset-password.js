@@ -33,7 +33,7 @@ export default async function handler(req, res) {
   // 3) Update the user: set new password, clear reset_token & reset_expires
   await pool.query(
     `UPDATE farm_account SET password = ?, reset_token = NULL, reset_expires = NULL WHERE farm_id = ?`,
-    [hashedPassword, user.id]
+    [hashedPassword, user.farm_id]
   )
 
   // 4) Optionally: you could send a confirmation email here that the password was changed.
