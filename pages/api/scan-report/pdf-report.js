@@ -14,7 +14,7 @@ export default async function handler(req, res) {
     const { dateFrom, dateTo, species, quality } = req.body
 
     let query = `
-      SELECT sr.*, ss.species_name, ss.phylum
+      SELECT sr.*, ss.phylum
       FROM scan_report sr
       JOIN seaweed_species ss ON sr.species_id = ss.species_id
       WHERE sr.farm_id = ?`
@@ -42,9 +42,7 @@ export default async function handler(req, res) {
     const avgImpurity = (
       rows.reduce((sum, r) => sum + parseFloat(r.impurity_status), 0) / total
     ).toFixed(2)
-    const avgDiscoloration = (
-      rows.reduce((sum, r) => sum + parseFloat(r.discoloration_level), 0) / total
-    ).toFixed(2)
+    const healthyCount = rows.filter(r => r.health_status === 'Healthy').length
 
     const doc = new PDFDocumentWithTables({ margin: 40, size: 'A4' })
     res.setHeader('Content-Type', 'application/pdf')
@@ -59,13 +57,13 @@ export default async function handler(req, res) {
     doc.fontSize(12).text(`Total Records: ${rows.length}`)
     doc.text(`Good Quality: ${goodCount} (${((goodCount / total) * 100).toFixed(1)}%)`)
     doc.text(`Avg. Impurity: ${avgImpurity}%`)
-    doc.text(`Avg. Discoloration: ${avgDiscoloration}%`).moveDown(1.5)
+    doc.text(`Healthy: ${healthyCount} (${((healthyCount / total) * 100).toFixed(1)}%)`)
 
     doc.fontSize(14).text('Filters Used', { underline: true }).moveDown(0.5)
     doc.fontSize(12)
 
     doc.text(`Date Range: ${dateFrom || 'All Time'} to ${dateTo || 'All Time'}`)
-    doc.text(`Species Filter: ${species ? rows.find(r => r.species_id == species)?.species_name || species : 'All Species'}`)
+    doc.text(`Species Filter: ${species ? rows.find(r => r.species_id == species)?.phylum || species : 'All Species'}`)
     doc.text(`Quality Filter: ${quality || 'All Qualities'}`)
 
     doc.moveDown(1.5)
@@ -79,7 +77,7 @@ export default async function handler(req, res) {
           { label: 'Species', property: 'species', width: 80 },
           { label: 'Quality', property: 'quality', width: 60 },
           { label: 'Impurity %', property: 'impurity', width: 80 },
-          { label: 'Discoloration %', property: 'discoloration', width: 100 }
+          { label: 'Health', property: 'health', width: 100 }
         ],
         datas: rows.slice(0, 10).map(row => ({
           timestamp: new Date(row.timestamp).toLocaleString('en-MY', {
@@ -87,10 +85,10 @@ export default async function handler(req, res) {
             timeStyle: 'short',
             timeZone: 'Asia/Kuala_Lumpur'
           }),
-          species: row.species_name,
+          species: row.phylum,
           quality: row.quality_status,
           impurity: `${parseFloat(row.impurity_status)}%`,
-          discoloration: `${parseFloat(row.discoloration_level)}%`
+          health: row.health_status
         }))
       },
       {

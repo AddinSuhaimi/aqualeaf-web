@@ -70,6 +70,7 @@ export default function DashboardClient({ user }) {
     })
     const data = await res.json()
     setPreviewData(data)
+    console.log(data[0])
   }
 
   const generateCSV = async () => {
@@ -177,7 +178,7 @@ export default function DashboardClient({ user }) {
                   <option value="">Do not filter</option>
                   {speciesOptions.map((s) => (
                     <option key={s.species_id} value={s.species_id}>
-                      {s.species_name}
+                      {s.phylum}
                     </option>
                   ))}
                 </select>
@@ -228,7 +229,7 @@ export default function DashboardClient({ user }) {
                   <th className="pb-2">Species</th>
                   <th className="pb-2">Quality</th>
                   <th className="pb-2">Impurity</th>
-                  <th className="pb-2">Discoloration</th>
+                  <th className="pb-2">Health</th>
                   <th className="pb-2">Scan Time</th>
                 </tr>
               </thead>
@@ -243,8 +244,7 @@ export default function DashboardClient({ user }) {
                   previewData.map((item, i) => (
                     <tr key={i} className="border-t">
                       <td className="py-2">
-                        <div className="font-medium">{item.species_name || item.species}</div>
-                        <div className="text-gray-500 text-xs">{item.phylum || '—'}</div>
+                        <div className="font-medium">{item.phylum || item.species}</div>
                       </td>
                       <td className="py-2">
                         <span className={`px-2 py-1 rounded text-xs font-semibold ${
@@ -256,7 +256,7 @@ export default function DashboardClient({ user }) {
                         </span>
                       </td>
                       <td className="py-2">{item.impurity_status || item.impurity}%</td>
-                      <td className="py-2">{item.discoloration_level || item.discoloration}%</td>
+                      <td className="py-2">{item.health_status || item.health}</td>
                       <td className="py-2">{item.timestamp}</td>
                     </tr>
                   ))

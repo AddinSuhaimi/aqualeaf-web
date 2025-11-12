@@ -14,7 +14,7 @@ export default async function handler(req, res) {
 
     let query = `
       SELECT sr.timestamp, ss.species_name, sr.quality_status,
-             sr.impurity_status, sr.discoloration_level
+             sr.impurity_status, sr.health_status
       FROM scan_report sr
       JOIN seaweed_species ss ON sr.species_id = ss.species_id
       WHERE sr.farm_id = ?
@@ -45,7 +45,7 @@ export default async function handler(req, res) {
         { label: 'Species', value: 'species_name' },
         { label: 'Quality', value: 'quality_status' },
         { label: 'Impurity %', value: 'impurity_status' },
-        { label: 'Discoloration %', value: 'discoloration_level' }
+        { label: 'Health', value: 'health_status' }
       ]
     })
 

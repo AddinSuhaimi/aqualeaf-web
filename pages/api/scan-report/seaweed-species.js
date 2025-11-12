@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     const farmId = decoded.farm_id
 
     const [rows] = await pool.query(`
-      SELECT DISTINCT ss.species_id, ss.species_name
+      SELECT DISTINCT ss.species_id, ss.phylum
       FROM scan_report sr
       JOIN seaweed_species ss ON sr.species_id = ss.species_id
       WHERE sr.farm_id = ?

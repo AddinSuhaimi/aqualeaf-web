@@ -16,12 +16,6 @@ export default function DashboardClient({ admin }) {
   const [newValue, setNewValue] = useState('')
   const [availableColumns, setAvailableColumns] = useState([]) // loaded from /api/columns
 
-  const [speciesAction, setSpeciesAction] = useState('add')
-  const [speciesList, setSpeciesList] = useState([])
-  const [speciesId, setSpeciesId] = useState('')
-  const [speciesName, setSpeciesName] = useState('')
-  const [phylum, setPhylum] = useState('Red Seaweed')
-
   useEffect(() => {
     function onPageShow(event) {
       // if page is coming from BFCache
@@ -52,13 +46,6 @@ export default function DashboardClient({ admin }) {
         })
     }
   }, [action])
-
-  useEffect(() => {
-    fetch('/api/seaweed-species')
-      .then(res => res.json())
-      .then(data => setSpeciesList(data.rows || []))
-      .catch(err => console.error('Failed to fetch species rows', err))
-  }, []) // always use []
 
   const handleApplyChanges = async () => {
     try {
@@ -125,66 +112,6 @@ export default function DashboardClient({ admin }) {
       alert('Unexpected error occurred while applying changes.')
     }
   }
-
-  const handleSpeciesAction = async () => {
-  try {
-    const payload = {}
-
-    if (speciesAction === 'add') {
-      if (!speciesName.trim()) {
-        alert('Please enter a species name.')
-        return
-      }
-      payload.action = 'add'
-      payload.name = speciesName
-      payload.phylum = phylum
-
-      const today = new Date()
-      const formattedDate = today.toISOString().split('T')[0]
-      payload.date_added = formattedDate
-
-    } else if (speciesAction === 'edit') {
-      if (!speciesId || !speciesName.trim()) {
-        alert('Please select a species and enter a new name.')
-        return
-      }
-      payload.action = 'edit'
-      payload.id = speciesId
-      payload.name = speciesName
-      payload.phylum = phylum
-
-    } else if (speciesAction === 'delete') {
-      if (!speciesId) {
-        alert('Please select a species to delete.')
-        return
-      }
-      payload.action = 'delete'
-      payload.id = speciesId
-    }
-
-    const res = await fetch('/api/seaweed-species', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
-
-    const result = await res.json()
-    if (res.ok) {
-      alert('Changes applied successfully.')
-      setSpeciesId('')
-      setSpeciesName('')
-      // Refresh updated list
-      const updated = await fetch('/api/seaweed-species').then((r) => r.json())
-      setSpeciesList(updated.rows || [])
-    } else {
-      alert(`Error: ${result.error}`)
-    }
-  } catch (err) {
-    console.error('Failed to update species:', err)
-    alert('Unexpected error occurred.')
-  }
-}
-
 
   return (
   <div className="bg-gray-100 min-h-screen">
@@ -368,130 +295,6 @@ export default function DashboardClient({ admin }) {
               Discard Changes
             </button>
           </div>
-        </div>
-            
-
-        <div className="bg-white shadow-md rounded-lg p-6 w-full lg:w-1/2">
-          <h2 className="text-xl text-charcoal font-semibold mb-4">Manage Seaweed Species</h2>
-            <label htmlFor="speciesAction" className="block text-charcoal font-medium mt-4">Action</label>
-            <select
-              id="speciesAction"
-              value={speciesAction}
-              onChange={(e) => {
-                setSpeciesAction(e.target.value)
-                setSpeciesId('')
-                setSpeciesName('')
-              }}
-              className="w-full mt-1 border rounded p-2 text-charcoal"
-            >
-              <option value="add">Add Row</option>
-              <option value="edit">Edit Row</option>
-              <option value="delete">Delete Row</option>
-            </select>
-
-            {/* ADD ROW */}
-            {speciesAction === 'add' && (
-              <>
-                <label className="block text-charcoal font-medium mt-4">Species Name</label>
-                <input
-                  type="text"
-                  value={speciesName}
-                  onChange={(e) => setSpeciesName(e.target.value)}
-                  className="w-full text-charcoal mt-1 border rounded p-2"
-                  placeholder="e.g., Eucheuma cottonii"
-                />
-
-                <label className="block text-charcoal font-medium mt-4">Phylum</label>
-                <select
-                  value={phylum}
-                  onChange={(e) => setPhylum(e.target.value)}
-                  className="w-full text-charcoal mt-1 border rounded p-2"
-                >
-                  <option value="Red Seaweed">Red Seaweed</option>
-                  <option value="Brown Seaweed">Brown Seaweed</option>
-                  <option value="Green Seaweed">Green Seaweed</option>
-                </select>
-              </>
-            )}
-
-            {/* EDIT ROW */}
-            {speciesAction === 'edit' && (
-              <>
-                <label className="block text-charcoal font-medium mt-4">Select Species ID to Edit</label>
-                <select
-                  value={speciesId}
-                  onChange={(e) => setSpeciesId(e.target.value)}
-                  className="w-full text-charcoal mt-1 border rounded p-2"
-                >
-                  <option value="">-- Select ID --</option>
-                  {speciesList.map((row) => (
-                    <option key={row.species_id} value={row.species_id}>
-                      ID {row.species_id} – {row.species_name}
-                    </option>
-                  ))}
-                </select>
-
-                <label className="block text-charcoal font-medium mt-4">New Species Name</label>
-                <input
-                  type="text"
-                  value={speciesName}
-                  onChange={(e) => setSpeciesName(e.target.value)}
-                  className="w-full text-charcoal mt-1 border rounded p-2"
-                  placeholder="e.g., Kappaphycus alvarezii"
-                />
-
-                <label className="block text-charcoal font-medium mt-4">Phylum</label>
-                <select
-                  value={phylum}
-                  onChange={(e) => setPhylum(e.target.value)}
-                  className="w-full text-charcoal mt-1 border rounded p-2"
-                >
-                  <option value="Red Seaweed">Red Seaweed</option>
-                  <option value="Brown Seaweed">Brown Seaweed</option>
-                  <option value="Green Seaweed">Green Seaweed</option>
-                </select>
-              </>
-            )}
-
-            {/* DELETE ROW */}
-            {speciesAction === 'delete' && (
-              <>
-                <label className="block text-charcoal font-medium mt-4">Select Species ID to Delete</label>
-                <select
-                  value={speciesId}
-                  onChange={(e) => setSpeciesId(e.target.value)}
-                  className="w-full text-charcoal mt-1 border rounded p-2"
-                >
-                  <option value="">-- Select ID --</option>
-                  {speciesList.map((row) => (
-                    <option key={row.species_id} value={row.species_id}>
-                      ID {row.species_id} – {row.species_name}
-                    </option>
-                  ))}
-                </select>
-              </>
-            )}
-
-            {/* BUTTONS */}
-            <div className="flex justify-between mt-6">
-              <button
-                type="button"
-                onClick={handleSpeciesAction}
-                className="cursor-pointer bg-leaf text-white py-2 px-4 rounded w-1/2 mr-2"
-              >
-                Apply Changes
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setSpeciesId('')
-                  setSpeciesName('')
-                }}
-                className="cursor-pointer bg-danger text-white py-2 px-4 rounded w-1/2 ml-2"
-              >
-                Discard Changes
-              </button>
-            </div>
         </div>
       </div>
     </div>
