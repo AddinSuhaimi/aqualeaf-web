@@ -9,10 +9,12 @@ export default async function handler(req, res) {
     const token = req.cookies.token
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
     const farmId = decoded.farm_id
+    const { reportType } = req.body;
+    const table = reportType === 'dried' ? 'scan_report_dried' : 'scan_report_fresh';
 
     const [rows] = await pool.query(`
       SELECT DISTINCT ss.species_id, ss.phylum
-      FROM scan_report sr
+      FROM ${table} sr
       JOIN seaweed_species ss ON sr.species_id = ss.species_id
       WHERE sr.farm_id = ?
     `, [farmId])

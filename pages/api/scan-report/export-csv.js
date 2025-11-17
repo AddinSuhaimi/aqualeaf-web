@@ -11,11 +11,16 @@ export default async function handler(req, res) {
     const farmId = decoded.farm_id
 
     const { dateFrom, dateTo, species, quality } = req.body
+    const { reportType } = req.body;
+    const table = reportType === 'dried' ? 'scan_report_dried' : 'scan_report_fresh';
+    const selectFields =
+    reportType === 'dried'
+      ? `sr.timestamp, ss.phylum, sr.quality_status, sr.impurity_status, sr.appearance AS status`
+      : `sr.timestamp, ss.phylum, sr.quality_status, sr.impurity_status, sr.health_status AS status`;
 
     let query = `
-      SELECT sr.timestamp, ss.species_name, sr.quality_status,
-             sr.impurity_status, sr.health_status
-      FROM scan_report sr
+      SELECT ${selectFields} 
+      FROM ${table} sr
       JOIN seaweed_species ss ON sr.species_id = ss.species_id
       WHERE sr.farm_id = ?
     `
@@ -45,7 +50,7 @@ export default async function handler(req, res) {
         { label: 'Species', value: 'species_name' },
         { label: 'Quality', value: 'quality_status' },
         { label: 'Impurity %', value: 'impurity_status' },
-        { label: 'Health', value: 'health_status' }
+        { label: reportType === 'dried' ? 'Appearance' : 'Health', value: 'status' }
       ]
     })
 

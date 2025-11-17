@@ -12,11 +12,16 @@ export default async function handler(req, res) {
 
     const farmId = decoded.farm_id
     const { species, quality, dateFrom, dateTo } = req.body
+    const { reportType } = req.body;
+    const table = reportType === 'dried' ? 'scan_report_dried' : 'scan_report_fresh';
+    const selectFields =
+    reportType === 'dried'
+      ? `sr.scan_id, sr.timestamp, sr.impurity_status, sr.appearance AS status, sr.quality_status, ss.phylum`
+      : `sr.scan_id, sr.timestamp, sr.impurity_status, sr.health_status AS status, sr.quality_status, ss.phylum`;
 
     let query = `
-      SELECT sr.scan_id, sr.timestamp, sr.impurity_status, sr.health_status,
-             sr.quality_status, ss.phylum
-      FROM scan_report sr
+      SELECT ${selectFields} 
+      FROM ${table} sr
       JOIN seaweed_species ss ON sr.species_id = ss.species_id
       WHERE sr.farm_id = ?
     `

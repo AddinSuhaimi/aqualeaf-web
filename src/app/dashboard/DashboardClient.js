@@ -14,6 +14,7 @@ export default function DashboardClient({ user }) {
     dateTo: '',
     species: '',
     quality: '',
+    reportType: 'fresh',
   })
 
   const router = useRouter()
@@ -33,7 +34,7 @@ export default function DashboardClient({ user }) {
     }
 
     fetchSpecies()
-  }, [])
+  }, [filters.reportType])
 
   const generatePDF = async () => {
     const response = await fetch('/api/scan-report/pdf-report', {
@@ -44,6 +45,7 @@ export default function DashboardClient({ user }) {
           dateTo: filters.dateTo,
           species: filters.species,
           quality: filters.quality,
+          reportType: filters.reportType
         })
     })
 
@@ -81,7 +83,8 @@ export default function DashboardClient({ user }) {
         dateFrom: filters.dateFrom,
         dateTo: filters.dateTo,
         species: filters.species,
-        quality: filters.quality
+        quality: filters.quality,
+        reportType: filters.reportType
       })
     })
 
@@ -165,6 +168,21 @@ export default function DashboardClient({ user }) {
                 </div>
               </div>
 
+              {/* Select seaweed type */}
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Seaweed Type
+              </label>
+              <select
+                className="w-full border rounded px-3 py-2"
+                value={filters.reportType}
+                onChange={(e) =>
+                  setFilters(prev => ({ ...prev, reportType: e.target.value }))
+                }
+              >
+                <option value="fresh">Fresh Seaweed</option>
+                <option value="dried">Dried Seaweed</option>
+              </select>
+
               {/* Other dropdowns */}
               <label htmlFor="speciesDropdown">Filter by Seaweed Species</label>
                 <select
@@ -229,7 +247,9 @@ export default function DashboardClient({ user }) {
                   <th className="pb-2">Species</th>
                   <th className="pb-2">Quality</th>
                   <th className="pb-2">Impurity</th>
-                  <th className="pb-2">Health</th>
+                  <th className="pb-2">
+                    {filters.reportType === "dried" ? "Appearance" : "Health"}
+                  </th>
                   <th className="pb-2">Scan Time</th>
                 </tr>
               </thead>
@@ -256,7 +276,7 @@ export default function DashboardClient({ user }) {
                         </span>
                       </td>
                       <td className="py-2">{item.impurity_status || item.impurity}%</td>
-                      <td className="py-2">{item.health_status || item.health}</td>
+                      <td className="py-2">{item.status}</td>
                       <td className="py-2">{item.timestamp}</td>
                     </tr>
                   ))

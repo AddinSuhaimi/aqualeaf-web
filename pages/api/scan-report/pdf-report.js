@@ -12,10 +12,12 @@ export default async function handler(req, res) {
     const farmId = decoded.farm_id
 
     const { dateFrom, dateTo, species, quality } = req.body
+    const { reportType } = req.body;
+    const table = reportType === 'dried' ? 'scan_report_dried' : 'scan_report_fresh';
 
     let query = `
       SELECT sr.*, ss.phylum
-      FROM scan_report sr
+      FROM ${table} sr
       JOIN seaweed_species ss ON sr.species_id = ss.species_id
       WHERE sr.farm_id = ?`
     const params = [farmId]
@@ -42,8 +44,11 @@ export default async function handler(req, res) {
     const avgImpurity = (
       rows.reduce((sum, r) => sum + parseFloat(r.impurity_status), 0) / total
     ).toFixed(2)
-    const healthyCount = rows.filter(r => r.health_status === 'Healthy').length
-
+    const statusCount = reportType === 'dried'
+    ? rows.filter(r => r.appearance === 'Satisfactory').length
+    : rows.filter(r => r.health_status === 'Healthy').length;
+    const statusLabel = reportType === 'dried' ? 'Satisfactory' : 'Healthy';
+    
     const doc = new PDFDocumentWithTables({ margin: 40, size: 'A4' })
     res.setHeader('Content-Type', 'application/pdf')
     res.setHeader('Content-Disposition', 'attachment; filename=seaweed_report.pdf')
@@ -57,7 +62,7 @@ export default async function handler(req, res) {
     doc.fontSize(12).text(`Total Records: ${rows.length}`)
     doc.text(`Good Quality: ${goodCount} (${((goodCount / total) * 100).toFixed(1)}%)`)
     doc.text(`Avg. Impurity: ${avgImpurity}%`)
-    doc.text(`Healthy: ${healthyCount} (${((healthyCount / total) * 100).toFixed(1)}%)`)
+    doc.text(`${statusLabel}: ${statusCount} (${((statusCount / total) * 100).toFixed(1)}%)`);
 
     doc.fontSize(14).text('Filters Used', { underline: true }).moveDown(0.5)
     doc.fontSize(12)
@@ -77,7 +82,11 @@ export default async function handler(req, res) {
           { label: 'Species', property: 'species', width: 80 },
           { label: 'Quality', property: 'quality', width: 60 },
           { label: 'Impurity %', property: 'impurity', width: 80 },
-          { label: 'Health', property: 'health', width: 100 }
+          {
+            label: reportType === 'dried' ? 'Appearance' : 'Health',
+            property: 'status',
+            width: 100
+          }
         ],
         datas: rows.slice(0, 10).map(row => ({
           timestamp: new Date(row.timestamp).toLocaleString('en-MY', {
@@ -88,7 +97,9 @@ export default async function handler(req, res) {
           species: row.phylum,
           quality: row.quality_status,
           impurity: `${parseFloat(row.impurity_status)}%`,
-          health: row.health_status
+          status: reportType === 'dried'
+          ? row.appearance
+          : row.health_status
         }))
       },
       {
