@@ -70,12 +70,18 @@ export default async function registerHandler(req, res) {
     [farmName, location, email, hash, token]
   )
 
-  // Send verification email
+  // Attempt sending email
   try {
     await sendVerificationEmail(email, token)
-    return res.status(201).json({ message: 'Registered. Verification email sent.' })
+    return res.status(201).json({
+      message: 'Registered successfully — verification email sent.',
+      emailSent: true
+    })
   } catch (err) {
-    console.error('Error sending verification email:', err)
-    return res.status(500).json({ message: 'Error sending email. Please try again later.' })
+    console.error('Email error:', err)
+    return res.status(200).json({
+      message: 'Account created but verification email failed to send.',
+      emailSent: false
+    })
   }
 }

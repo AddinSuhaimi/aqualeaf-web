@@ -8,6 +8,11 @@ export default function LoginPage() {
   const [form, setForm] = useState({ identifier: '', password: '' })
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
+  const [unverifiedEmail, setUnverifiedEmail] = useState(null)
+  const [resendLoading, setResendLoading] = useState(false);
+  const [showResendPopup, setShowResendPopup] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState(null);
+  const [loginLoading, setLoginLoading] = useState(false);
   const router = useRouter()
 
   useEffect(() => {
@@ -30,21 +35,33 @@ export default function LoginPage() {
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
-    const res = await fetch('/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        identifier: form.identifier,
-        password: form.password,
-      }),
-    })
-    if (res.ok) {
-      // replace so login isn't retained in history
-      router.replace('/dashboard')
-    } else {
+    setUnverifiedEmail(null)
+    setLoginLoading(true)
+
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          identifier: form.identifier,
+          password: form.password,
+        }),
+      })
       const data = await res.json()
-      setError(data.message || 'Login failed')
-    }
+      if (res.ok) {
+        // replace so login isn't retained in history
+        router.replace('/dashboard')
+      } else {
+        setError(data.message || 'Login failed')
+        if (data.notVerified) {
+          setUnverifiedEmail(data.email)
+        }
+      }
+    } catch (err) {
+      setError('An unexpected error occurred.');
+    } finally {
+      setLoginLoading(false);
+    } 
   }
 
   return (
@@ -95,6 +112,34 @@ export default function LoginPage() {
           </div>
 
           {error && <p className="text-red-600 text-sm">{error}</p>}
+          {unverifiedEmail && (
+            <button
+              type="button"
+              onClick={async () => {
+                setResendLoading(true);
+                try {
+                  const res = await fetch('/api/resend-verification', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: unverifiedEmail })
+                  });
+
+                  const data = await res.json();
+                  setResendSuccess(res.ok);
+                  setShowResendPopup(true);
+                } catch (err) {
+                  setResendSuccess(false);
+                  setShowResendPopup(true);
+                } finally {
+                  setResendLoading(false);
+                }
+              }}
+              className="mt-2 mb-2 text-sm text-ocean underline cursor-pointer"
+            >
+              Resend Verification Email
+            </button>
+          )}
+
           <button
             type="submit"
             className="cursor-pointer w-full mt-4 bg-ocean hover:bg-ocean text-white font-medium py-2 rounded-md transition"
@@ -121,6 +166,67 @@ export default function LoginPage() {
           Home
         </Link>
       </div>
+
+      {/* Loading Modal for Login */}
+      {loginLoading && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ backgroundColor: 'rgba(0, 0, 0, 0.25)' }}
+        >
+          <div className="flex flex-col items-center bg-white rounded-lg p-6 shadow-lg">
+            <div className="animate-spin h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full"></div>
+            <p className="mt-4 text-gray-700">Logging in...</p>
+          </div>
+        </div>
+      )}
+      
+      {/* Loading Modal for Resend */}
+      {resendLoading && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ backgroundColor: 'rgba(0, 0, 0, 0.25)' }}
+        >
+          <div className="flex flex-col items-center bg-white rounded-lg p-6 shadow-lg">
+            <div className="animate-spin h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full"></div>
+            <p className="mt-4 text-gray-700">Sending verification email...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Popup After Resend */}
+      {showResendPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[rgba(0,0,0,0.25)]">
+          <div className="bg-white rounded-lg shadow-lg max-w-sm w-full p-6 text-center">
+
+            {resendSuccess ? (
+              <>
+                <h2 className="text-xl font-semibold text-green-600 mb-4">
+                  Verification Email Sent
+                </h2>
+                <p className="text-charcoal mb-6">
+                  A new verification email has been sent to <b>{unverifiedEmail}</b>.
+                </p>
+              </>
+            ) : (
+              <>
+                <h2 className="text-xl font-semibold text-red-600 mb-4">
+                  Sending Failed
+                </h2>
+                <p className="text-charcoal mb-6">
+                  We could not send the verification email. Please try again later.
+                </p>
+              </>
+            )}
+
+            <button
+              onClick={() => setShowResendPopup(false)}
+              className="px-4 py-2 bg-gray-200 text-charcoal rounded-md hover:bg-gray-300 transition"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

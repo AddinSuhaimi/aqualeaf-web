@@ -10,6 +10,7 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showPopup, setShowPopup] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [emailSent, setEmailSent] = useState(null)
   const router = useRouter()
 
   async function handleSubmit(e) {
@@ -33,6 +34,7 @@ export default function RegisterPage() {
 
       if (res.ok) {
         setShowPopup(true)
+        setEmailSent(data.emailSent)
       } else {
         setError(data.message || 'Registration failed')
       }
@@ -147,15 +149,31 @@ export default function RegisterPage() {
 
       {/* Popup Overlay */}
       {showPopup && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ backgroundColor: 'rgba(0, 0, 0, 0.25)' }}
-        >
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[rgba(0,0,0,0.25)]">
           <div className="bg-white rounded-lg shadow-lg max-w-sm w-full p-6 text-center">
-            <h2 className="text-xl font-semibold text-charcoal mb-4">Registration Successful</h2>
-            <p className="text-charcoal mb-6">
-              Check your email for a verification link before logging in.
-            </p>
+
+            {emailSent ? (
+              <>
+                <h2 className="text-xl font-semibold text-charcoal mb-4">
+                  Registration Successful
+                </h2>
+                <p className="text-charcoal mb-6">
+                  Please check your email for the verification link before logging in.
+                </p>
+              </>
+            ) : (
+              <>
+                <h2 className="text-xl font-semibold text-red-600 mb-4">
+                  Email Sending Failed
+                </h2>
+                <p className="text-charcoal mb-6">
+                  Your account was created, but the verification email could not be sent.
+                  You may try again later or use "Resend Verification Email" when available.
+                </p>
+              </>
+            )}
+
+            {/* Buttons */}
             <div className="flex justify-center gap-4">
               <button
                 onClick={() => setShowPopup(false)}
@@ -163,6 +181,7 @@ export default function RegisterPage() {
               >
                 Close
               </button>
+
               <button
                 onClick={() => router.push('/login')}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
@@ -170,10 +189,10 @@ export default function RegisterPage() {
                 Go to Login
               </button>
             </div>
+
           </div>
         </div>
       )}
-
     </div>
   )
 }
