@@ -168,7 +168,7 @@ export default function RegisterPage() {
                 </h2>
                 <p className="text-charcoal mb-6">
                   Your account was created, but the verification email could not be sent.
-                  You may try again later or use "Resend Verification Email" when available.
+                  You may try again later or use &quot;Resend Verification Email&quot; when available.
                 </p>
               </>
             )}
