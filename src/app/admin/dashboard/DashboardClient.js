@@ -121,7 +121,7 @@ export default function DashboardClient({ admin }) {
         },
         body: JSON.stringify({
           action,
-          adminEmail: admin.email, // ✅ from props
+          adminEmail: admin.email, // from props
         }),
       })
 
@@ -134,7 +134,7 @@ export default function DashboardClient({ admin }) {
 
       alert(data.message)
 
-      // 🔄 Refresh farm accounts after update
+      // Refresh farm accounts after update
       const refreshed = await fetch('/api/farm-accounts')
       const refreshedData = await refreshed.json()
       setFarmAccounts(refreshedData.accounts || [])
@@ -142,6 +142,31 @@ export default function DashboardClient({ admin }) {
     } catch (err) {
       console.error('Account action error:', err)
       alert('Unexpected error occurred')
+    }
+  }
+
+  const handleDeleteAccount = async (farmId) => {
+    try {
+      const res = await fetch(`/api/farm-accounts/${farmId}`, {
+        method: 'DELETE',
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        alert(data.message || 'Delete failed')
+        return
+      }
+
+      alert('Account permanently deleted.')
+
+      // Refresh farm accounts
+      const refreshed = await fetch('/api/farm-accounts')
+      const refreshedData = await refreshed.json()
+      setFarmAccounts(refreshedData.accounts || [])
+    } catch (err) {
+      console.error('Delete account error:', err)
+      alert('Unexpected error occurred during deletion')
     }
   }
 
@@ -257,9 +282,11 @@ export default function DashboardClient({ admin }) {
                 <option value="LOGIN_ADMIN_FAILED">Admin Login Failed</option>
                 <option value="LOGIN_FARM">Farm Login</option>
                 <option value="LOGIN_FARM_FAILED">Farm Login Failed</option>
-                <option value="SUSPEND_FARM">Suspend Farm</option>
-                <option value="REACTIVATE_FARM">Reactivate Farm</option>
-                <option value="DEACTIVATE_FARM">Deactivate Farm</option>
+                <option value="LOGIN_FARM_BLOCKED">Farm Login Blocked</option>
+                <option value="SUSPEND_FARM">Suspend Farm Account</option>
+                <option value="REINSTATE_FARM">Reinstate Farm Account</option>
+                <option value="DEACTIVATE_FARM">Deactivate Farm Account</option>
+                <option value="DELETE_FARM">Delete Farm Account</option>
               </select>
             </div>
 
@@ -370,27 +397,61 @@ export default function DashboardClient({ admin }) {
                     <td className="px-4 py-2">{account.email}</td>
                     <td className="px-4 py-2 capitalize">{account.status}</td>
                     <td className="px-4 py-2 space-x-2">
-                      {account.status === 'active' ? (
-                        <button
-                          className="bg-yellow-500 text-white px-3 py-1 rounded-md hover:bg-yellow-600 transition"
-                          onClick={() => handleAccountAction(account.id, 'suspend')}
-                        >
-                          Suspend
-                        </button>
+                      {account.status === 'deactivated' ? (
+                        <>
+                          <span className="text-gray-400 italic">Deactivated</span>
+                          <button
+                            className="bg-red-800 text-white px-3 py-1 rounded-md hover:bg-red-900 transition cursor-pointer"
+                            onClick={() => {
+                              const confirmed = window.confirm(
+                                '!!! PERMANENT DELETE !!!\n\nThis action will permanently remove the account and all associated data.\n\nAre you 100% sure? This cannot be undone.'
+                              )
+                              if (confirmed) {
+                                handleDeleteAccount(account.id)
+                              }
+                            }}
+                          >
+                            Delete Account
+                          </button>
+                        </>
+                      ) : account.status === 'active' ? (
+                        <>
+                          <button
+                            className="bg-yellow-500 text-white px-3 py-1 rounded-md hover:bg-yellow-600 transition cursor-pointer"
+                            onClick={() => handleAccountAction(account.id, 'suspend')}
+                          >
+                            Suspend
+                          </button>
+                          <button
+                            className="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 transition cursor-pointer"
+                            onClick={() => {
+                              const confirmed = window.confirm(
+                                '⚠️ WARNING: Deactivating this farm account is permanent and cannot be undone.\n\nAre you absolutely sure you want to deactivate this account?'
+                              )
+                              if (confirmed) {
+                                handleAccountAction(account.id, 'deactivate')
+                              }
+                            }}
+                          >
+                            Deactivate
+                          </button>
+                        </>
                       ) : (
-                        <button
-                          className="bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 transition"
-                          onClick={() => handleAccountAction(account.id, 'reactivate')}
-                        >
-                          Reactivate
-                        </button>
+                        <>
+                          <button
+                            className="bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 transition cursor-pointer"
+                            onClick={() => handleAccountAction(account.id, 'reinstate')}
+                          >
+                            Reinstate
+                          </button>
+                          <button
+                            className="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 transition cursor-pointer"
+                            onClick={() => handleAccountAction(account.id, 'deactivate')}
+                          >
+                            Deactivate
+                          </button>
+                        </>
                       )}
-                      <button
-                        className="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 transition"
-                        onClick={() => handleAccountAction(account.id, 'deactivate')}
-                      >
-                        Deactivate
-                      </button>
                     </td>
                   </tr>
                 ))}
