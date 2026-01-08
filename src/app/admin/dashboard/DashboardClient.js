@@ -77,6 +77,38 @@ export default function DashboardClient({ admin }) {
     )
   }, [searchTerm, farmAccounts])
 
+  // Logs Pagination
+  const [logsPage, setLogsPage] = useState(1);
+  const logsPerPage = 10;
+  const totalLogsPages = Math.ceil(filteredLogs.length / logsPerPage);
+  const currentLogs = filteredLogs.slice(
+    (logsPage - 1) * logsPerPage,
+    logsPage * logsPerPage
+  );
+  const nextLogsPage = () => setLogsPage((prev) => Math.min(prev + 1, totalLogsPages));
+  const prevLogsPage = () => setLogsPage((prev) => Math.max(prev - 1, 1));
+
+  // Reset logs page if filter changes
+  useEffect(() => {
+    setLogsPage(1);
+  }, [filteredLogs]);
+
+  // Farm Accounts Pagination
+  const [accountsPage, setAccountsPage] = useState(1);
+  const accountsPerPage = 10;
+  const totalAccountsPages = Math.ceil(filteredAccounts.length / accountsPerPage);
+  const currentAccounts = filteredAccounts.slice(
+    (accountsPage - 1) * accountsPerPage,
+    accountsPage * accountsPerPage
+  );
+  const nextAccountsPage = () => setAccountsPage((prev) => Math.min(prev + 1, totalAccountsPages));
+  const prevAccountsPage = () => setAccountsPage((prev) => Math.max(prev - 1, 1));
+
+  // Reset accounts page if search/filter changes
+  useEffect(() => {
+    setAccountsPage(1);
+  }, [filteredAccounts]);
+
   const handleAccountAction = async (farmId, action) => {
     const confirmMessage = `Are you sure you want to ${action} this farm account?`
     if (!window.confirm(confirmMessage)) return
@@ -202,8 +234,9 @@ export default function DashboardClient({ admin }) {
             </div>
           </div>
         </div>
+
+        {/* === System Logs Table === */}
         <div className="bg-white shadow-lg rounded-xl p-6">
-          {/* === System Logs Table === */}
           <h3 className="text-lg font-semibold text-charcoal mb-4">
             System Event Logs
           </h3>
@@ -267,8 +300,8 @@ export default function DashboardClient({ admin }) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {filteredLogs.length > 0 ? (
-                  filteredLogs.map((log, idx) => (
+                {currentLogs.length > 0 ? (
+                  currentLogs.map((log, idx) => (
                     <tr
                       key={idx}
                       className="bg-white hover:bg-teal-50 transition"
@@ -291,7 +324,18 @@ export default function DashboardClient({ admin }) {
               </tbody>
             </table>
           </div>
-        </div> 
+
+          {/* Pagination Controls */}
+          <div className="mt-4 flex justify-end space-x-2">
+            <button onClick={prevLogsPage} disabled={logsPage === 1} className="px-3 py-1 bg-teal-600 text-white rounded disabled:opacity-50 cursor-pointer">
+              Prev
+            </button>
+            <span className="text-sm text-gray-700 self-center">{logsPage}</span>
+            <button onClick={nextLogsPage} disabled={logsPage === totalLogsPages} className="px-3 py-1 bg-teal-600 text-white rounded disabled:opacity-50 cursor-pointer">
+              Next
+            </button>
+          </div>
+        </div>
 
         {/* === UC-14: Manage Farm Accounts Panel === */}
         <div className="bg-white shadow-md rounded-lg p-6">
@@ -320,7 +364,7 @@ export default function DashboardClient({ admin }) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {filteredAccounts.map(account => (
+                {currentAccounts.map(account => (
                   <tr key={account.id} className="bg-white hover:bg-teal-50 transition">
                     <td className="px-4 py-2">{account.farm_name}</td>
                     <td className="px-4 py-2">{account.email}</td>
@@ -353,8 +397,20 @@ export default function DashboardClient({ admin }) {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination Controls */}
+          <div className="mt-4 flex justify-end space-x-2">
+            <button onClick={prevAccountsPage} disabled={accountsPage === 1} className="px-3 py-1 bg-teal-600 text-white rounded disabled:opacity-50 cursor-pointer">
+              Prev
+            </button>
+            <span className="text-sm text-gray-700 self-center">{accountsPage}</span>
+            <button onClick={nextAccountsPage} disabled={accountsPage === totalAccountsPages} className="px-3 py-1 bg-teal-600 text-white rounded disabled:opacity-50 cursor-pointer">
+              Next
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  )
+  );
+
 }
