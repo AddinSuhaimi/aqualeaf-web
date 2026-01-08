@@ -45,8 +45,8 @@ export default async function handler(req, res) {
       rows.reduce((sum, r) => sum + parseFloat(r.impurity_status), 0) / total
     ).toFixed(2)
     const statusCount = reportType === 'dried'
-    ? rows.filter(r => r.appearance === 'Satisfactory').length
-    : rows.filter(r => r.health_status === 'Healthy').length;
+    ? rows.filter(r => r.appearance === 'satisfactory').length
+    : rows.filter(r => r.health_status === 'healthy').length;
     const statusLabel = reportType === 'dried' ? 'Satisfactory' : 'Healthy';
     
     const doc = new PDFDocumentWithTables({ margin: 40, size: 'A4' })

@@ -15,15 +15,25 @@ export default async function handler(req, res) {
     'SELECT farm_id, farm_name, password, is_verified, email FROM farm_account WHERE (email = ? OR farm_name = ?)',
     [identifier, identifier]
   )
-  if (!rows.length)
+  if (!rows.length) {
+    await pool.query(
+      `INSERT INTO system_logs (event_type, actor_email)
+      VALUES (?, ?)`,
+      ['LOGIN_FARM_FAILED', identifier]
+    )
     return res.status(401).json({ message: 'User not found' })
-
+  }
   const user = rows[0]
 
   const valid = await bcrypt.compare(password, user.password)
-  if (!valid)
+  if (!valid) {
+    await pool.query(
+      `INSERT INTO system_logs (event_type, actor_email, target_farm)
+      VALUES (?, ?, ?)`,
+      ['LOGIN_FARM_FAILED', user.email, user.farm_name]
+    )
     return res.status(401).json({ message: 'Invalid credentials' })
-
+  }
   if (user.is_verified === 0) {
     return res.status(403).json({
       message: 'Account not verified',
@@ -41,5 +51,12 @@ export default async function handler(req, res) {
   res.setHeader('Set-Cookie', [
     `token=${token}; HttpOnly; Path=/; Max-Age=3600; SameSite=Lax`
   ])
+  // INSERT SYSTEM LOG
+  await pool.query(
+    `INSERT INTO system_logs (event_type, actor_email, target_farm)
+    VALUES (?, ?, ?)`,
+    ['LOGIN_FARM', user.email, user.farm_name]
+  )
+
   res.status(200).json({ message: 'Logged in' })
 }

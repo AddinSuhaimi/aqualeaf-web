@@ -7,8 +7,8 @@ export default async function handler(req, res) {
   if (req.method !== 'POST')
     return res.status(405).json({ message: 'Method Not Allowed' })
 
-  const { username, email, password } = req.body
-  if (!username || !email || !password)
+  const { email, password } = req.body
+  if (!email || !password)
     return res.status(400).json({ message: 'Missing fields' })
 
   const [rows] = await pool.query(
@@ -26,12 +26,18 @@ export default async function handler(req, res) {
   const valid = await bcrypt.compare(password, admin.password)
   if (!valid) {
     await pool.query(
-      'INSERT INTO login_attempt (timestamp, status) VALUES (NOW(), \'Invalid credentials\')',
+      `INSERT INTO system_logs (event_type, actor_email)
+      VALUES (?, ?)`,
+      ['LOGIN_ADMIN_FAILED', email]
     )
     return res.status(401).json({ message: 'Invalid credentials' })
   }
   const token = jwt.sign(
-    { id: admin.id, username: admin.username },
+    {
+      admin_id: admin.admin_id,
+      email: admin.email,
+      username: admin.username
+    },
     process.env.JWT_SECRET,
     { expiresIn: '1h' }
   )
@@ -39,8 +45,12 @@ export default async function handler(req, res) {
   res.setHeader('Set-Cookie', [
     `token=${token}; HttpOnly; Path=/; Max-Age=3600; SameSite=Lax`
   ])
+  // INSERT SYSTEM LOG
   await pool.query(
-    'INSERT INTO login_attempt (timestamp, status) VALUES (NOW(), \'Success\')',
+    `INSERT INTO system_logs (event_type, actor_email)
+    VALUES (?, ?)`,
+    ['LOGIN_ADMIN', email]
   )
+
   res.status(200).json({ message: 'Logged in' })
 }

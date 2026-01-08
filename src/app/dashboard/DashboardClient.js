@@ -240,49 +240,50 @@ export default function DashboardClient({ user }) {
 
           {/* Preview Table */}
           <div className="bg-white shadow-md rounded-lg p-6 overflow-x-auto">
-            <h3 className="text-lg font-semibold mb-4">Preview Data</h3>
-            <table className="w-full text-sm text-left">
-              <thead className="text-gray-600 border-b">
-                <tr>
-                  <th className="pb-2">Species</th>
-                  <th className="pb-2">Quality</th>
-                  <th className="pb-2">Impurity</th>
-                  <th className="pb-2">
-                    {filters.reportType === "dried" ? "Appearance" : "Health"}
-                  </th>
-                  <th className="pb-2">Scan Time</th>
-                </tr>
-              </thead>
-              <tbody>
-                {previewData.length === 0 ? (
+            <h3 className="text-lg font-semibold mb-4 text-charcoal">Preview Data</h3>
+
+            <div className="rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+              <table className="w-full text-sm text-left">
+                <thead className="bg-teal-600 text-white">
                   <tr>
-                    <td colSpan="5" className="text-center py-4 text-gray-400">
-                      No data previewed yet.
-                    </td>
+                    <th className="px-4 py-3 font-semibold">Species</th>
+                    <th className="px-4 py-3 font-semibold">Quality</th>
+                    <th className="px-4 py-3 font-semibold">Impurity</th>
+                    <th className="px-4 py-3 font-semibold">
+                      {filters.reportType === "dried" ? "Appearance" : "Health"}
+                    </th>
+                    <th className="px-4 py-3 font-semibold">Scan Time</th>
                   </tr>
-                ) : (
-                  previewData.map((item, i) => (
-                    <tr key={i} className="border-t">
-                      <td className="py-2">
-                        <div className="font-medium">{item.phylum || item.species}</div>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {previewData.length === 0 ? (
+                    <tr>
+                      <td colSpan="5" className="text-center py-4 text-gray-400">
+                        No data previewed yet.
                       </td>
-                      <td className="py-2">
-                        <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                          item.quality_status === 'Good' ? 'bg-green-100 text-green-600' :
-                          item.quality_status === 'Bad' ? 'bg-red-200 text-red-600' :
-                          'bg-gray-200 text-gray-700'
-                        }`}>
-                          {item.quality_status || item.quality}
-                        </span>
-                      </td>
-                      <td className="py-2">{item.impurity_status || item.impurity}%</td>
-                      <td className="py-2">{item.status}</td>
-                      <td className="py-2">{item.timestamp}</td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    previewData.map((item, i) => (
+                      <tr key={i} className="bg-white hover:bg-teal-50 transition">
+                        <td className="px-4 py-2 font-medium text-gray-800">{item.phylum || item.species}</td>
+                        <td className="px-4 py-2">
+                          <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                            item.quality_status === 'Good' ? 'bg-green-100 text-green-700' :
+                            item.quality_status === 'Bad' ? 'bg-red-100 text-red-700' :
+                            'bg-gray-100 text-gray-700'
+                          }`}>
+                            {item.quality_status || item.quality}
+                          </span>
+                        </td>
+                        <td className="px-4 py-2">{item.impurity_status || item.impurity}%</td>
+                        <td className="px-4 py-2">{item.status}</td>
+                        <td className="px-4 py-2">{item.timestamp}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </main>
