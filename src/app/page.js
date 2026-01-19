@@ -21,33 +21,6 @@ export default function HomePage() {
             />
             <span className="text-2xl font-semibold text-gray-800">AquaLeaf</span>
           </div>
-          {/* Nav Links */}
-          <nav className="flex items-center gap-6">
-            <Link href="#updates" className="text-gray-600 hover:text-gray-900">
-              Latest Updates
-            </Link>
-            <Link href="#info" className="text-gray-600 hover:text-gray-900">
-              Seaweed Information
-            </Link>
-            <Link href="#contact" className="text-gray-600 hover:text-gray-900">
-              Contact
-            </Link>
-          </nav>
-          {/* Auth Buttons */}
-          <div className="flex items-center gap-4">
-            <Link
-              href="/register"
-              className="px-4 py-2 bg-leaf hover:bg-leaf text-white rounded-md"
-            >
-              Register
-            </Link>
-            <Link
-              href="/login"
-              className="px-4 py-2 bg-ocean hover:bg-ocean text-white rounded-md"
-            >
-              Sign In
-            </Link>
-          </div>
         </div>
       </header>
 
@@ -87,7 +60,7 @@ export default function HomePage() {
                 href="/login"
                 className="inline-block px-6 py-3 bg-ocean hover:bg-ocean text-white rounded-md"
               >
-                Sign In as Farm Manager
+                Login as Farm Manager
               </Link>
             </div>
           </div>

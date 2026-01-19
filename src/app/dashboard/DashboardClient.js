@@ -108,16 +108,8 @@ export default function DashboardClient({ user }) {
     <div className="min-h-screen bg-gray-50 text-gray-800">
       {/* Header */}
       <header className="bg-white shadow-md flex items-center justify-between px-6 py-4">
-        <div className="flex items-center space-x-4">
-          <Image src="/aqualeaf-logo.png" alt="Logo" width={32} height={32} />
-          <nav className="space-x-4 text-sm text-gray-700">
-            <a href="#" className="hover:underline">Latest Updates</a>
-            <a href="#" className="hover:underline">Seaweed Information</a>
-            <a href="#" className="hover:underline">Contact</a>
-          </nav>
-        </div>
         <button onClick={handleLogout} className="cursor-pointer bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded shadow">
-          Sign Out
+          Logout
         </button>
       </header>
 
@@ -126,12 +118,7 @@ export default function DashboardClient({ user }) {
         {/* Farm Info */}
         <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
           <div>
-            <h2 className="text-2xl font-semibold">{user.farm_name}</h2>
-            <p className="text-gray-600">Kampung Laut, Jalan Percubaan, Malaysia</p>
-            <details className="mt-2 border rounded p-3 bg-white shadow-sm">
-              <summary className="font-medium cursor-pointer">Info</summary>
-              <p className="text-sm mt-2">Brief information about the farm, seaweed types, etc. if needed.</p>
-            </details>
+            <h2 className="text-2xl font-semibold">{user.farm_name} Seaweed Farm</h2>
           </div>
         </div>
 
