@@ -13,7 +13,6 @@ https://aqualeaf-web.vercel.app/
 ## Testing Guidelines
 
 * Use the **live deployed system** for functional testing
-* Avoid modifying or abusing system features
 * Data may be reset periodically
 
 ---
